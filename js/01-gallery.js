@@ -3,54 +3,50 @@ import { galleryItems } from './gallery-items.js';
 
 console.log(galleryItems);
 
-const gallery = document.querySelector('.gallery');
-const markupGallery = galleryItems.map(({preview, original, description}) =>  
-    `
-    <li class="gallery__item">
-  <a class="gallery__link" href="large-image.jpg">
+const galleryList = document.querySelector(".gallery");
+const markupGallery = createMarkupGallery(galleryItems);
+
+
+function createMarkupGallery(galleryArray) {
+  return galleryArray
+    .map(({ preview, original, description }) => {
+      return `<li class="gallery__item">
+  <a class="gallery__link" href="${original}">
     <img
       class="gallery__image"
       src="${preview}"
       data-source="${original}"
-      alt="${description}"
-    />
+      alt="${description}" />
   </a>
-</li>
-    `
-).join('');
+</li>`;
+    })
+    .join("");
+}
 
-gallery.insertAdjacentHTML('beforeend', markupGallery);
+galleryList.insertAdjacentHTML("beforeend", markupGallery);
+galleryList.addEventListener("click", clickImage);
 
-gallery.addEventListener('click', onClickImage);
-
-function onClickImage(evt) {
-    evt.preventDefault();
-    const {target} = evt;
-    if (!target.classList.contains('gallery_image')) {
-        return
+function clickImage(evt) {
+  evt.preventDefault();
+  const { target } = evt;
+  if (!target.dataset.source) {
+    return;
+  }
+  const modal = basicLightbox.create(
+    ` <img src="${target.dataset.source}" width="1280" height="auto">`,
+    {
+      onShow: (modal) => {
+        window.addEventListener("keydown", exitEscape);
+      },
+      onClose: (modal) => {
+        window.removeEventListener("keydown", exitEscape);
+      },
     }
-
-    const original = target.dataset.source;
-    const description = target.alt;
-    const modal = basicLightbox.create (
-        `<img
-            class="modal__image"
-            src="${original}"
-            alt="${description}"
-            />`
-    )
-
-
-modal.show();
-
-if(modal.visible()) {
-    window.addEventListener('keydown', pushKeyDown);
-}
-
-function pushKeyDown(evt) {
- if(evt.keyCode === 27) {
-    modal.close();
-    window.removeEventListener('keydown', pushKeyDown);
- }
-}
+  );
+  function exitEscape(evt) {
+    if (evt.code === "Escape") {
+        modal.close();
+    }
+  }
+  modal.show();
 }
