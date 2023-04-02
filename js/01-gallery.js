@@ -25,6 +25,32 @@ gallery.addEventListener('click', onClickImage);
 
 function onClickImage(evt) {
     evt.preventDefault();
-    
+    const {target} = evt;
+    if (!target.classList.contains('gallery_image')) {
+        return
+    }
 
+    const original = target.dataset.source;
+    const description = target.alt;
+    const modal = basicLightbox.create (
+        `<img
+            class="modal__image"
+            src="${original}"
+            alt="${description}"
+            />`
+    )
+
+
+modal.show();
+
+if(modal.visible()) {
+    window.addEventListener('keydown', pushKeyDown);
+}
+
+function pushKeyDown(evt) {
+ if(evt.keyCode === 27) {
+    modal.close();
+    window.removeEventListener('keydown', pushKeyDown);
+ }
+}
 }
